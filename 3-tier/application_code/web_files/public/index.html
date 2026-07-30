@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>React App</title>
+        <style>
+      /* Header Social Section Styles */
+      .header-social {
+        background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .header-social h3 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        font-weight: 600;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+      }
+      
+      .social-links {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        max-width: 800px;
+        margin: 0 auto 20px;
+      }
+      
+      .social-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 12px 15px;
+        width: 100px;
+        text-decoration: none;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .social-link:hover {
+        transform: translateY(-5px);
+        background-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      }
+      
+      .social-icon {
+        font-size: 28px;
+        margin-bottom: 6px;
+      }
+      
+      .social-link span:last-child {
+        font-weight: 500;
+        font-size: 12px;
+      }
+      
+      .author-credit {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      /* Main app container */
+      #root {
+        min-height: calc(100vh - 250px);
+      }
+      
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .header-social {
+          padding: 15px;
+        }
+        
+        .header-social h3 {
+          font-size: 20px;
+          margin-bottom: 15px;
+        }
+        
+        .social-links {
+          gap: 10px;
+        }
+        
+        .social-link {
+          width: 85px;
+          padding: 10px;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .header-social h3 {
+          font-size: 18px;
+        }
+        
+        .social-links {
+          gap: 8px;
+        }
+        
+        .social-link {
+          width: 70px;
+          padding: 8px;
+        }
+        
+        .social-icon {
+          font-size: 24px;
+        }
+        
+        .social-link span:last-child {
+          font-size: 11px;
+        }
+        
+        .author-credit {
+          font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+ 
+  <body>
+        <!-- Social Links Section -->
+   <header class="header-social">
+        <h3>Stay Connected with Harish N Shetty</h3>
+        <div class="social-links">
+            <a href="https://harishnshetty.github.io/" target="_blank" rel="noopener noreferrer" class="social-link">
+                <span class="social-icon">🌐</span>
+                <span>Website</span>
+            </a>
+            <a href="https://www.youtube.com/@devopsHarishNShetty" target="_blank" rel="noopener noreferrer" class="social-link">
+                <span class="social-icon">▶️</span>
+                <span>YouTube</span>
+            </a>
+            <a href="https://www.linkedin.com/in/harishnshetty" target="_blank" rel="noopener noreferrer" class="social-link">
+                <span class="social-icon">💼</span>
+                <span>LinkedIn</span>
+            </a>
+            <a href="https://github.com/harishnshetty" target="_blank" rel="noopener noreferrer" class="social-link">
+                <span class="social-icon">🐱</span>
+                <span>GitHub</span>
+            </a>
+        </div>
+        <div class="author-credit">
+            Created by Harish N Shetty - DevOps Engineer & Cloud Architect
+        </div>
+    </header>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+
+
+  </body>
+</html>

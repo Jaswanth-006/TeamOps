@@ -1,0 +1,62 @@
+# ==========================================================================
+#  SECRETS & CREDENTIALS — never commit these.
+#  (.gitignore does NOT support inline comments — patterns must be alone.)
+# ==========================================================================
+# SSH private keys
+*.pem
+*.ppk
+# environment files with passwords / DB URLs
+.env
+.env.*
+# ...but DO track the template
+!.env.example
+# terraform vars may contain db passwords
+*.tfvars
+# ...but DO track templates
+!*.example.tfvars
+aws-credentials*
+
+# ==========================================================================
+#  TERRAFORM
+# ==========================================================================
+# provider plugins (huge, machine-specific)
+**/.terraform/*
+# state — may contain secrets in plaintext; lives in S3
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+.terraformrc
+terraform.rc
+*.tfplan
+
+# ==========================================================================
+#  NODE (frontend + backend)
+# ==========================================================================
+node_modules/
+dist/
+build/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.local
+
+# ==========================================================================
+#  PACKER
+# ==========================================================================
+packer_cache/
+*.box
+
+# ==========================================================================
+#  OS / EDITOR noise
+# ==========================================================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
