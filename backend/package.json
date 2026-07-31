@@ -1,0 +1,15 @@
+{
+  "name": "teamops-backend",
+  "version": "1.0.0",
+  "description": "TeamOps API server",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
