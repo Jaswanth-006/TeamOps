@@ -2,6 +2,7 @@ import prisma from "../configs/prisma.js";
 import { hashPassword, comparePassword } from "../configs/password.js";
 import { signToken } from "../configs/jwt.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
+import { requireFields } from "../utils/validate.js";
 
 // Shape the user object returned to clients so the password hash never leaves
 // the server.
@@ -11,13 +12,8 @@ function publicUser(user) {
 
 // Register a new account.
 export const register = asyncHandler(async (req, res) => {
+  requireFields(req.body, ["name", "email", "password"]);
   const { name, email, password } = req.body;
-
-  if (!name || !email || !password) {
-    return res
-      .status(400)
-      .json({ message: "name, email, and password are required" });
-  }
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -43,11 +39,8 @@ export const getMe = asyncHandler(async (req, res) => {
 
 // Log in with email and password, returning a signed token.
 export const login = asyncHandler(async (req, res) => {
+  requireFields(req.body, ["email", "password"]);
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: "email and password are required" });
-  }
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user || !(await comparePassword(password, user.password))) {
