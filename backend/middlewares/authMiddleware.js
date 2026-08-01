@@ -1,8 +1,16 @@
 import { verifyToken } from "../configs/jwt.js";
 
+// Auth contract for controllers
+// -----------------------------
+// After protect runs, a request exposes the current user two equivalent ways:
+//   const { userId } = await req.auth();   // matches the previous auth provider
+//   const userId = req.userId;             // direct access
+//
+// Controllers use `await req.auth()`, so protect is a drop-in replacement for the
+// external provider that was here before and controller logic needs no changes.
+
 // Guards protected routes. Reads the bearer token, verifies it, and attaches the
-// user id to the request. It also exposes req.auth() returning { userId } so
-// controllers can read the current user through a single, stable interface.
+// user id to the request via both interfaces described above.
 export const protect = (req, res, next) => {
   try {
     const header = req.headers.authorization || "";
