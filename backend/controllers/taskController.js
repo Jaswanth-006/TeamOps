@@ -110,3 +110,44 @@ export const updateTask = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Delete one or more tasks in a single operation. Only the team lead of the
+// tasks' project may delete them.
+export const deleteTask = async (req, res) => {
+  try {
+    const { userId } = await req.auth();
+    const { tasksIds } = req.body;
+
+    if (!Array.isArray(tasksIds) || tasksIds.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "tasksIds must be a non-empty array" });
+    }
+
+    const tasks = await prisma.task.findMany({
+      where: { id: { in: tasksIds } },
+    });
+    if (tasks.length === 0) {
+      return res.status(404).json({ message: "Tasks not found" });
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: tasks[0].projectId },
+    });
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    if (project.team_lead !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You don't have admin privileges for this project" });
+    }
+
+    await prisma.task.deleteMany({ where: { id: { in: tasksIds } } });
+
+    res.json({ message: "Task deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+};
