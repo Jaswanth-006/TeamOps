@@ -169,3 +169,52 @@ export const updateProject = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Add a member to a project. Only the project's team lead may do this. The
+// project id comes from the URL path.
+export const addMember = async (req, res) => {
+  try {
+    const { userId } = await req.auth();
+    const { projectId } = req.params;
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "email is required" });
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: { members: true },
+    });
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    if (project.team_lead !== userId) {
+      return res
+        .status(403)
+        .json({ message: "Only the project lead can add members" });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const alreadyMember = project.members.some(
+      (member) => member.userId === user.id
+    );
+    if (alreadyMember) {
+      return res.status(409).json({ message: "User is already a member" });
+    }
+
+    const member = await prisma.projectMember.create({
+      data: { userId: user.id, projectId },
+    });
+
+    res.status(201).json({ member, message: "Member added successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+};
