@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import authRouter from "./routes/authRoutes.js";
 import workspaceRouter from "./routes/workspaceRoutes.js";
+import projectRouter from "./routes/projectRoutes.js";
 import { protect } from "./middlewares/authMiddleware.js";
 
 const app = express();
@@ -20,6 +21,7 @@ app.get("/health", (req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api/workspaces", protect, workspaceRouter);
+app.use("/api/projects", protect, projectRouter);
 
 const PORT = process.env.PORT || 5000;
 
