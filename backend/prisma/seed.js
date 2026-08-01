@@ -1,5 +1,5 @@
-import bcrypt from "bcryptjs";
 import prisma from "../configs/prisma.js";
+import { hashPassword } from "../configs/password.js";
 
 // Populate the database with a small, predictable dataset for local development:
 // three users, one workspace, and their memberships. Passwords are hashed so the
@@ -18,7 +18,7 @@ async function main() {
   await prisma.workspace.deleteMany();
   await prisma.user.deleteMany();
 
-  const passwordHash = await bcrypt.hash(PASSWORD, 10);
+  const passwordHash = await hashPassword(PASSWORD);
 
   const [alex, john, oliver] = await Promise.all([
     prisma.user.create({
