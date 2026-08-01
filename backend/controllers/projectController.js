@@ -100,3 +100,72 @@ export const createProject = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Update a project. A workspace admin may update any project; otherwise the
+// caller must be the project's own team lead (layered authorization).
+export const updateProject = async (req, res) => {
+  try {
+    const { userId } = await req.auth();
+    const {
+      id,
+      workspaceId,
+      description,
+      name,
+      status,
+      start_date,
+      end_date,
+      progress,
+      priority,
+    } = req.body;
+
+    if (!id || !workspaceId) {
+      return res
+        .status(400)
+        .json({ message: "id and workspaceId are required" });
+    }
+
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: workspaceId },
+      include: { members: true },
+    });
+    if (!workspace) {
+      return res.status(404).json({ message: "Workspace not found" });
+    }
+
+    const isAdmin = workspace.members.some(
+      (member) => member.userId === userId && member.role === "ADMIN"
+    );
+
+    // Not an admin: fall back to allowing only the project's team lead.
+    if (!isAdmin) {
+      const existing = await prisma.project.findUnique({ where: { id } });
+      if (!existing) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+      if (existing.team_lead !== userId) {
+        return res.status(403).json({
+          message: "You don't have permission to update this project",
+        });
+      }
+    }
+
+    const project = await prisma.project.update({
+      where: { id },
+      data: {
+        workspaceId,
+        description,
+        name,
+        status,
+        priority,
+        progress,
+        start_date: start_date ? new Date(start_date) : null,
+        end_date: end_date ? new Date(end_date) : null,
+      },
+    });
+
+    res.json({ project, message: "Project updated successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+};
