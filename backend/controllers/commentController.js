@@ -46,3 +46,21 @@ export const addComment = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// List the comments on a task, oldest first, each with its author.
+export const getTaskComments = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+
+    const comments = await prisma.comment.findMany({
+      where: { taskId },
+      include: { user: true },
+      orderBy: { createdAt: "asc" },
+    });
+
+    res.json({ comments });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+};
