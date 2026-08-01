@@ -36,6 +36,20 @@ export const register = async (req, res) => {
   }
 };
 
+// Return the currently authenticated user, identified by their token.
+export const getMe = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.userId } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ user: publicUser(user) });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Log in with email and password, returning a signed token.
 export const login = async (req, res) => {
   try {
