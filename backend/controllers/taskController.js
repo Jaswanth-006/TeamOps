@@ -1,4 +1,5 @@
 import prisma from "../configs/prisma.js";
+import { sendMail } from "../configs/mailer.js";
 
 // Create a task in a project. Only the project's team lead may create tasks, and
 // the assignee must be a member of the project.
@@ -62,6 +63,16 @@ export const createTask = async (req, res) => {
     res
       .status(201)
       .json({ task: taskWithAssignee, message: "Task created successfully" });
+
+    // Notify the assignee. Best-effort and after the response, so a mail issue
+    // never affects task creation.
+    if (taskWithAssignee.assignee?.email) {
+      sendMail({
+        to: taskWithAssignee.assignee.email,
+        subject: `New task assigned: ${taskWithAssignee.title}`,
+        text: `You have been assigned the task "${taskWithAssignee.title}".`,
+      });
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
