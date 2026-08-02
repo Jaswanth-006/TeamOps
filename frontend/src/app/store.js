@@ -1,7 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
+import themeReducer from "../features/themeSlice";
 
-// Global state container. Feature reducers (workspace, theme) are registered
-// here as they are added.
+// Global state container. Feature reducers are registered here as they are added.
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    theme: themeReducer,
+  },
 });
