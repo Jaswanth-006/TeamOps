@@ -1,36 +1,29 @@
-import { useEffect } from "react";
-import { Outlet, NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Outlet } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loadTheme } from "../features/themeSlice";
+import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
 
-// App shell. The sidebar and navbar are stubbed here and get built out in later
-// changes; for now it provides navigation and an outlet for the routed pages.
+// App shell: a sidebar column and a main column with a top navbar and a
+// scrollable content area where routed pages render.
 const Layout = () => {
   const dispatch = useDispatch();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     dispatch(loadTheme());
   }, [dispatch]);
 
-  const linkClass = ({ isActive }) =>
-    isActive ? "font-semibold text-blue-600" : "text-gray-600 dark:text-gray-300";
-
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 dark:text-zinc-100">
-      <nav className="flex gap-4 border-b border-gray-200 p-4 dark:border-zinc-800">
-        <NavLink to="/" end className={linkClass}>
-          Dashboard
-        </NavLink>
-        <NavLink to="/projects" className={linkClass}>
-          Projects
-        </NavLink>
-        <NavLink to="/team" className={linkClass}>
-          Team
-        </NavLink>
-      </nav>
-      <main>
-        <Outlet />
-      </main>
+    <div className="flex h-screen bg-white text-gray-900 dark:bg-zinc-950 dark:text-zinc-100">
+      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <div className="flex flex-1 flex-col">
+        <Navbar setIsSidebarOpen={setIsSidebarOpen} />
+        <main className="flex-1 overflow-y-auto p-6">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };
