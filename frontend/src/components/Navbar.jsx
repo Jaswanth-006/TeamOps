@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Menu, Sun, Moon, LogOut } from "lucide-react";
 import { toggleTheme } from "../features/themeSlice";
 import { useAuth } from "../context/AuthContext";
+import WorkspaceDropdown from "./WorkspaceDropdown";
 
 // Top bar: mobile menu button, a workspace switcher placeholder (wired to real
 // data in the workspace change), theme toggle, current user, and logout.
@@ -20,10 +21,7 @@ const Navbar = ({ setIsSidebarOpen }) => {
         >
           <Menu className="size-5" />
         </button>
-        {/* Workspace switcher — becomes a real dropdown once workspaces load. */}
-        <span className="text-sm font-medium text-gray-500 dark:text-zinc-400">
-          Workspace
-        </span>
+        <WorkspaceDropdown />
       </div>
 
       <div className="flex items-center gap-4">
