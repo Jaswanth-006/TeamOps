@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import ProjectTasks from "../components/ProjectTasks";
 
 const TABS = ["Tasks", "Overview", "Calendar"];
 
@@ -47,11 +48,7 @@ const ProjectDetails = () => {
       </div>
 
       <div>
-        {tab === "Tasks" && (
-          <p className="text-sm text-gray-500 dark:text-zinc-400">
-            Task board coming next.
-          </p>
-        )}
+        {tab === "Tasks" && <ProjectTasks project={project} />}
         {tab === "Overview" && (
           <p className="text-sm text-gray-500 dark:text-zinc-400">Overview coming next.</p>
         )}
