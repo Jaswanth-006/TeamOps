@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import StatsGrid from "../components/StatsGrid";
 
 // Workspace overview. Everything is derived from the current workspace already
 // loaded in the store — no extra API calls.
@@ -26,6 +27,8 @@ const Dashboard = () => {
           {currentWorkspace.members.length} members
         </p>
       </div>
+
+      <StatsGrid workspace={currentWorkspace} />
     </div>
   );
 };
