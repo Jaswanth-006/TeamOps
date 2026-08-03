@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import ProjectTasks from "../components/ProjectTasks";
 import ProjectOverview from "../components/ProjectOverview";
 import ProjectSettings from "../components/ProjectSettings";
+import ProjectCalendar from "../components/ProjectCalendar";
 
 const TABS = ["Tasks", "Overview", "Calendar"];
 
@@ -57,9 +58,7 @@ const ProjectDetails = () => {
             <ProjectSettings project={project} />
           </div>
         )}
-        {tab === "Calendar" && (
-          <p className="text-sm text-gray-500 dark:text-zinc-400">Calendar coming next.</p>
-        )}
+        {tab === "Calendar" && <ProjectCalendar project={project} />}
       </div>
     </div>
   );
