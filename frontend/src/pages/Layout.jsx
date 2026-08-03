@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loadTheme } from "../features/themeSlice";
+import { fetchWorkspaces } from "../features/workspaceSlice";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 
@@ -13,6 +14,7 @@ const Layout = () => {
 
   useEffect(() => {
     dispatch(loadTheme());
+    dispatch(fetchWorkspaces());
   }, [dispatch]);
 
   return (
