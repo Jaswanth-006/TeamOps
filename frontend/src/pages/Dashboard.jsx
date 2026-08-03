@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import StatsGrid from "../components/StatsGrid";
 import TasksSummary from "../components/TasksSummary";
 import RecentActivity from "../components/RecentActivity";
+import ProjectAnalytics from "../components/ProjectAnalytics";
 
 // Workspace overview. Everything is derived from the current workspace already
 // loaded in the store — no extra API calls.
@@ -36,6 +37,8 @@ const Dashboard = () => {
         <TasksSummary workspace={currentWorkspace} />
         <RecentActivity workspace={currentWorkspace} />
       </div>
+
+      <ProjectAnalytics workspace={currentWorkspace} />
     </div>
   );
 };
