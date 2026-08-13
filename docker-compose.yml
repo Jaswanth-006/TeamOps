@@ -33,5 +33,16 @@ services:
       postgres:
         condition: service_healthy
 
+  frontend:
+    build: ./frontend
+    container_name: teamops-frontend
+    restart: unless-stopped
+    # nginx serves the built SPA and proxies /api to the backend service,
+    # mirroring the web tier in front of the app tier on AWS.
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
 volumes:
   teamops_pgdata:
