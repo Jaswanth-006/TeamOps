@@ -1,15 +1,22 @@
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { format } from "date-fns";
 import { CalendarIcon, PenIcon } from "lucide-react";
+import toast from "react-hot-toast";
+import api from "../configs/api";
+import { updateTask } from "../features/workspaceSlice";
+
+const STATUSES = ["TODO", "IN_PROGRESS", "DONE"];
 
 // Detail view for a single task, selected via projectId and taskId query params.
-// Status controls, delete, and comments are added by later changes.
 const TaskDetails = () => {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get("projectId");
   const taskId = searchParams.get("taskId");
+  const dispatch = useDispatch();
   const { currentWorkspace } = useSelector((state) => state.workspace);
+  const [updating, setUpdating] = useState(false);
 
   const project = currentWorkspace?.projects.find((p) => p.id === projectId);
   const task = project?.tasks.find((t) => t.id === taskId);
@@ -17,6 +24,20 @@ const TaskDetails = () => {
   if (!project || !task) {
     return <div className="text-red-500">Task not found.</div>;
   }
+
+  const changeStatus = async (status) => {
+    if (status === task.status) return;
+    setUpdating(true);
+    try {
+      const { data } = await api.put(`/tasks/${task.id}`, { status });
+      dispatch(updateTask({ ...data.task, projectId: project.id }));
+      toast.success(`Moved to ${status}`);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to update task");
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -39,6 +60,24 @@ const TaskDetails = () => {
             {task.description}
           </p>
         )}
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-sm text-gray-500 dark:text-zinc-400">Status:</span>
+          {STATUSES.map((s) => (
+            <button
+              key={s}
+              onClick={() => changeStatus(s)}
+              disabled={updating}
+              className={`rounded px-2 py-1 text-xs ${
+                s === task.status
+                  ? "bg-blue-600 text-white"
+                  : "border border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              }`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
 
         <hr className="my-4 border-gray-200 dark:border-zinc-700" />
 
