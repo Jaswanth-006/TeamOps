@@ -6,6 +6,7 @@ import { CalendarIcon, PenIcon, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../configs/api";
 import { updateTask, deleteTask } from "../features/workspaceSlice";
+import TaskComments from "../components/TaskComments";
 
 const STATUSES = ["TODO", "IN_PROGRESS", "DONE"];
 
@@ -123,6 +124,8 @@ const TaskDetails = () => {
           <span>Progress: {project.progress}%</span>
         </div>
       </div>
+
+      <TaskComments taskId={task.id} />
     </div>
   );
 };
