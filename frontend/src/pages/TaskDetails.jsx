@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { format } from "date-fns";
-import { CalendarIcon, PenIcon } from "lucide-react";
+import { CalendarIcon, PenIcon, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../configs/api";
-import { updateTask } from "../features/workspaceSlice";
+import { updateTask, deleteTask } from "../features/workspaceSlice";
 
 const STATUSES = ["TODO", "IN_PROGRESS", "DONE"];
 
@@ -15,6 +15,7 @@ const TaskDetails = () => {
   const projectId = searchParams.get("projectId");
   const taskId = searchParams.get("taskId");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { currentWorkspace } = useSelector((state) => state.workspace);
   const [updating, setUpdating] = useState(false);
 
@@ -39,10 +40,30 @@ const TaskDetails = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm("Delete this task?")) return;
+    try {
+      await api.post("/tasks/delete", { tasksIds: [task.id] });
+      dispatch(deleteTask([task.id]));
+      toast.success("Task deleted");
+      navigate(`/projectsDetail?projectId=${project.id}`);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to delete task");
+    }
+  };
+
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="rounded-lg border border-gray-200 p-5 dark:border-zinc-800">
-        <h1 className="text-lg font-semibold">{task.title}</h1>
+        <div className="flex items-start justify-between gap-2">
+          <h1 className="text-lg font-semibold">{task.title}</h1>
+          <button
+            onClick={handleDelete}
+            className="flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 dark:text-zinc-400"
+          >
+            <Trash2 className="size-4" /> Delete
+          </button>
+        </div>
         <div className="mt-2 flex flex-wrap gap-2">
           <span className="rounded bg-zinc-200 px-2 py-0.5 text-xs dark:bg-zinc-700">
             {task.status}
