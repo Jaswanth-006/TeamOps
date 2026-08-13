@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
+import CreateTaskDialog from "./CreateTaskDialog";
 
 const COLUMNS = [
   { key: "TODO", label: "To Do" },
@@ -6,14 +9,28 @@ const COLUMNS = [
   { key: "DONE", label: "Done" },
 ];
 
-// Kanban-style board grouping a project's tasks by status. Task creation and
-// status changes are added later; this renders the board.
+// Kanban-style board grouping a project's tasks by status, with task creation.
 const ProjectTasks = ({ project }) => {
   const navigate = useNavigate();
   const tasks = project.tasks || [];
+  const [showCreate, setShowCreate] = useState(false);
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <button
+          onClick={() => setShowCreate(true)}
+          className="flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        >
+          <Plus className="size-4" /> New task
+        </button>
+      </div>
+
+      {showCreate && (
+        <CreateTaskDialog project={project} onClose={() => setShowCreate(false)} />
+      )}
+
+      <div className="grid gap-4 md:grid-cols-3">
       {COLUMNS.map(({ key, label }) => {
         const columnTasks = tasks.filter((t) => t.status === key);
         return (
@@ -48,6 +65,7 @@ const ProjectTasks = ({ project }) => {
           </div>
         );
       })}
+      </div>
     </div>
   );
 };
