@@ -45,3 +45,14 @@ module "secrets" {
   db_port     = module.rds.db_port
   db_name     = var.db_name
 }
+
+module "alb" {
+  source = "./modules/alb"
+
+  environment        = var.environment
+  vpc_id             = module.vpc.vpc_id
+  public_subnet_ids  = module.vpc.public_subnet_ids
+  app_subnet_ids     = module.vpc.app_subnet_ids
+  public_alb_sg_id   = module.security.public_alb_sg_id
+  internal_alb_sg_id = module.security.internal_alb_sg_id
+}
