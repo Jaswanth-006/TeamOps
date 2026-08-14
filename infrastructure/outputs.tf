@@ -25,3 +25,13 @@ output "db_endpoint" {
   description = "Database endpoint (host:port)"
   value       = module.rds.db_endpoint
 }
+
+output "public_alb_dns_name" {
+  description = "Public entry point — the site's front door"
+  value       = module.alb.public_alb_dns_name
+}
+
+output "internal_alb_dns_name" {
+  description = "Internal ALB DNS — nginx proxies /api here"
+  value       = module.alb.internal_alb_dns_name
+}
