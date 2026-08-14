@@ -15,3 +15,12 @@ output "public_alb_arn" {
 output "web_target_group_arn" {
   value = aws_lb_target_group.web.arn
 }
+
+output "internal_alb_dns_name" {
+  description = "Internal DNS name — nginx proxies /api here"
+  value       = aws_lb.internal.dns_name
+}
+
+output "app_target_group_arn" {
+  value = aws_lb_target_group.app.arn
+}
