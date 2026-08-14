@@ -1,0 +1,12 @@
+# Terraform working files — never commit these.
+.terraform/
+.terraform.lock.hcl
+
+# State can contain secrets in plaintext — never commit it.
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Local variable files with real values / secrets.
+*.auto.tfvars
+secret.tfvars
