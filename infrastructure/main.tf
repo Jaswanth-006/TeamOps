@@ -11,3 +11,11 @@ module "vpc" {
   app_subnet_cidrs    = var.app_subnet_cidrs
   db_subnet_cidrs     = var.db_subnet_cidrs
 }
+
+module "security" {
+  source = "./modules/security"
+
+  environment      = var.environment
+  vpc_id           = module.vpc.vpc_id
+  ssh_allowed_cidr = var.ssh_allowed_cidr
+}
