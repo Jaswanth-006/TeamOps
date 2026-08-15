@@ -35,3 +35,8 @@ output "internal_alb_dns_name" {
   description = "Internal ALB DNS — nginx proxies /api here"
   value       = module.alb.internal_alb_dns_name
 }
+
+output "site_url" {
+  description = "The site's HTTPS URL — the headline result"
+  value       = module.dns.site_url
+}
