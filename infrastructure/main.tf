@@ -90,3 +90,14 @@ module "compute" {
   app_min_size         = var.app_min_size
   app_max_size         = var.app_max_size
 }
+
+module "dns" {
+  source = "./modules/dns"
+
+  hosted_zone_name     = var.hosted_zone_name
+  record_name          = var.record_name
+  public_alb_arn       = module.alb.public_alb_arn
+  public_alb_dns_name  = module.alb.public_alb_dns_name
+  public_alb_zone_id   = module.alb.public_alb_zone_id
+  web_target_group_arn = module.alb.web_target_group_arn
+}
