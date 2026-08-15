@@ -56,3 +56,37 @@ module "alb" {
   public_alb_sg_id   = module.security.public_alb_sg_id
   internal_alb_sg_id = module.security.internal_alb_sg_id
 }
+
+module "compute" {
+  source = "./modules/compute"
+
+  environment = var.environment
+  region      = var.region
+  vpc_id      = module.vpc.vpc_id
+
+  web_subnet_ids = module.vpc.web_subnet_ids
+  app_subnet_ids = module.vpc.app_subnet_ids
+
+  web_sg_id = module.security.web_sg_id
+  app_sg_id = module.security.app_sg_id
+
+  web_target_group_arn = module.alb.web_target_group_arn
+  app_target_group_arn = module.alb.app_target_group_arn
+
+  web_ami_id        = data.aws_ami.amazon_linux.id
+  app_ami_id        = data.aws_ami.amazon_linux.id
+  web_instance_type = var.web_instance_type
+  app_instance_type = var.app_instance_type
+  key_name          = var.key_name
+
+  secret_arn            = module.secrets.secret_arn
+  secret_name           = module.secrets.secret_name
+  internal_alb_dns_name = module.alb.internal_alb_dns_name
+
+  web_desired_capacity = var.web_desired_capacity
+  web_min_size         = var.web_min_size
+  web_max_size         = var.web_max_size
+  app_desired_capacity = var.app_desired_capacity
+  app_min_size         = var.app_min_size
+  app_max_size         = var.app_max_size
+}
