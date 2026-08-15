@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+
+# App tier boot script. Installs Node, pulls the backend, applies database
+# migrations, and starts the API. The database credentials are NOT baked in —
+# the app fetches them from Secrets Manager at runtime using its instance role.
+
+dnf update -y
+dnf install -y git nodejs npm
+npm install -g pm2
+
+cd /home/ec2-user
+git clone https://github.com/Jaswanth-006/TeamOps.git app || true
+
+cd /home/ec2-user/app/backend
+npm install
+
+# Pass the secret name and region so the app can fetch DB credentials at boot.
+# (configs/databaseUrl.js is the single seam that reads these.)
+cat > /home/ec2-user/app/backend/.env <<ENV
+REGION=${region}
+SECRET_NAME=${secret_name}
+PORT=4000
+ENV
+
+# Apply migrations, then start the API under pm2 so it stays alive.
+npx prisma migrate deploy || true
+pm2 start server.js --name teamops-api
+pm2 save

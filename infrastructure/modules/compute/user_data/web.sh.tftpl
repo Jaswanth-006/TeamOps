@@ -1,0 +1,46 @@
+#!/bin/bash
+set -e
+
+# Web tier boot script. Installs nginx and Node, pulls the frontend, builds it,
+# and configures nginx to serve the build and proxy /api to the internal ALB.
+
+dnf update -y
+dnf install -y nginx git nodejs npm
+
+# Clone the application repository.
+cd /home/ec2-user
+git clone https://github.com/Jaswanth-006/TeamOps.git app || true
+
+# Build the React frontend.
+cd /home/ec2-user/app/frontend
+npm install
+npm run build
+
+# Serve the build with nginx, proxying /api to the internal load balancer.
+# The internal ALB DNS is injected by Terraform via templatefile().
+cat > /etc/nginx/conf.d/teamops.conf <<'NGINX'
+server {
+    listen 80;
+    server_name _;
+    root /home/ec2-user/app/frontend/dist;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://${internal_alb_dns};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+NGINX
+
+# Remove the default server block so ours is used.
+sed -i '/server {/,/^}/d' /etc/nginx/nginx.conf || true
+
+systemctl enable nginx
+systemctl restart nginx
