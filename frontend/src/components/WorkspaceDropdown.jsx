@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ChevronDown, Check } from "lucide-react";
+import { ChevronDown, Check, Plus } from "lucide-react";
 import { setCurrentWorkspace } from "../features/workspaceSlice";
+import CreateClassDialog from "./CreateClassDialog";
 
-// Switches the current workspace. Reads the list from the store and dispatches
-// the selection, which is also persisted to local storage by the reducer.
+// Switches the current class, and offers creating a new one. Reads the list from
+// the store; selection is persisted to local storage by the reducer.
 const WorkspaceDropdown = () => {
   const dispatch = useDispatch();
   const { workspaces, currentWorkspace } = useSelector((state) => state.workspace);
   const [open, setOpen] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
 
   if (!currentWorkspace) return null;
 
@@ -41,9 +43,20 @@ const WorkspaceDropdown = () => {
                 {w.id === currentWorkspace.id && <Check className="size-4 text-blue-600" />}
               </button>
             ))}
+            <button
+              onClick={() => {
+                setOpen(false);
+                setShowCreate(true);
+              }}
+              className="flex w-full items-center gap-2 border-t border-gray-100 px-3 py-2 text-left text-sm text-blue-600 hover:bg-gray-50 dark:border-zinc-800 dark:hover:bg-zinc-800"
+            >
+              <Plus className="size-4" /> New class
+            </button>
           </div>
         </>
       )}
+
+      {showCreate && <CreateClassDialog onClose={() => setShowCreate(false)} />}
     </div>
   );
 };
