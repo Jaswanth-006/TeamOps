@@ -8,11 +8,19 @@ import { addTask } from "../features/workspaceSlice";
 // assignee must be a project member, so the options come from project.members.
 const CreateTaskDialog = ({ project, onClose }) => {
   const dispatch = useDispatch();
-  const members = project.members || [];
+
+  // Assignable people: the team lead plus all team members, de-duplicated. The
+  // backend accepts either, so the lead is a valid assignee even before being
+  // added as a member.
+  const assignees = [];
+  if (project.owner) assignees.push(project.owner);
+  (project.members || []).forEach((m) => {
+    if (!assignees.some((u) => u.id === m.user.id)) assignees.push(m.user);
+  });
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [assigneeId, setAssigneeId] = useState(members[0]?.user.id || "");
+  const [assigneeId, setAssigneeId] = useState(assignees[0]?.id || "");
   const [priority, setPriority] = useState("MEDIUM");
   const [type, setType] = useState("TASK");
   const [dueDate, setDueDate] = useState("");
@@ -50,9 +58,9 @@ const CreateTaskDialog = ({ project, onClose }) => {
       >
         <h2 className="text-lg font-semibold">New task</h2>
 
-        {members.length === 0 && (
+        {assignees.length === 0 && (
           <p className="rounded bg-amber-50 p-2 text-sm text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-            Add a member to this project before creating tasks.
+            Add a member to this team before creating tasks.
           </p>
         )}
 
@@ -80,9 +88,10 @@ const CreateTaskDialog = ({ project, onClose }) => {
           <option value="" disabled>
             Assignee
           </option>
-          {members.map((m) => (
-            <option key={m.user.id} value={m.user.id}>
-              {m.user.name}
+          {assignees.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.name}
+              {u.id === project.owner?.id ? " (leader)" : ""}
             </option>
           ))}
         </select>
@@ -130,7 +139,7 @@ const CreateTaskDialog = ({ project, onClose }) => {
           </button>
           <button
             type="submit"
-            disabled={submitting || members.length === 0}
+            disabled={submitting || assignees.length === 0}
             className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
           >
             {submitting ? "Creating..." : "Create"}
