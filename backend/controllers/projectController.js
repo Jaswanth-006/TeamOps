@@ -1,4 +1,5 @@
 import prisma from "../configs/prisma.js";
+import { canManageProject } from "../utils/permissions.js";
 
 // Create a project inside a workspace. Only a workspace admin may create one.
 // The team lead arrives as an email and is resolved to a user id. Optional team
@@ -170,8 +171,8 @@ export const updateProject = async (req, res) => {
   }
 };
 
-// Add a member to a project. Only the project's team lead may do this. The
-// project id comes from the URL path.
+// Add a member to a project. The project's team lead or the workspace admin
+// (faculty) may do this. The project id comes from the URL path.
 export const addMember = async (req, res) => {
   try {
     const { userId } = await req.auth();
@@ -190,10 +191,10 @@ export const addMember = async (req, res) => {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    if (project.team_lead !== userId) {
+    if (!(await canManageProject(project, userId))) {
       return res
         .status(403)
-        .json({ message: "Only the project lead can add members" });
+        .json({ message: "You don't have permission to manage this team" });
     }
 
     const user = await prisma.user.findUnique({ where: { email } });
