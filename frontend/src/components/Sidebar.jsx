@@ -1,8 +1,9 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, FolderKanban, Users, X } from "lucide-react";
+import { LayoutDashboard, LayoutGrid, FolderKanban, Users, X } from "lucide-react";
 
 const links = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/class", label: "Class Overview", icon: LayoutGrid },
   { to: "/projects", label: "Teams", icon: FolderKanban },
   { to: "/team", label: "People", icon: Users },
 ];

@@ -4,6 +4,7 @@ import Layout from "./pages/Layout";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import ClassOverview from "./pages/ClassOverview";
 import Projects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
 import TaskDetails from "./pages/TaskDetails";
@@ -24,6 +25,7 @@ const App = () => {
           }
         >
           <Route index element={<Dashboard />} />
+          <Route path="class" element={<ClassOverview />} />
           <Route path="projects" element={<Projects />} />
           <Route path="projectsDetail" element={<ProjectDetails />} />
           <Route path="taskDetails" element={<TaskDetails />} />
