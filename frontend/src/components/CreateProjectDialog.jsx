@@ -10,12 +10,15 @@ const CreateProjectDialog = ({ onClose }) => {
   const dispatch = useDispatch();
   const { currentWorkspace } = useSelector((state) => state.workspace);
 
+  const classMembers = currentWorkspace.members || [];
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("MEDIUM");
+  const [leadEmail, setLeadEmail] = useState(
+    classMembers[0]?.user.email || ""
+  );
   const [submitting, setSubmitting] = useState(false);
-
-  const leadEmail = currentWorkspace.members[0]?.user.email;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,7 +33,7 @@ const CreateProjectDialog = ({ onClose }) => {
         status: "ACTIVE",
       });
       dispatch(addProject(data.project));
-      toast.success("Project created");
+      toast.success("Team created");
       onClose();
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to create project");
@@ -61,14 +64,33 @@ const CreateProjectDialog = ({ onClose }) => {
           rows={3}
           className="w-full rounded border border-gray-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800"
         />
+        <label className="block text-sm text-gray-500 dark:text-zinc-400">
+          Team leader
+          <select
+            value={leadEmail}
+            onChange={(e) => setLeadEmail(e.target.value)}
+            required
+            className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-gray-900 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+          >
+            <option value="" disabled>
+              Select a team leader
+            </option>
+            {classMembers.map((m) => (
+              <option key={m.user.id} value={m.user.email}>
+                {m.user.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <select
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
           className="w-full rounded border border-gray-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800"
         >
-          <option value="LOW">Low</option>
-          <option value="MEDIUM">Medium</option>
-          <option value="HIGH">High</option>
+          <option value="LOW">Low priority</option>
+          <option value="MEDIUM">Medium priority</option>
+          <option value="HIGH">High priority</option>
         </select>
 
         <div className="flex justify-end gap-2">
