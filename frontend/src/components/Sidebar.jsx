@@ -3,8 +3,8 @@ import { LayoutDashboard, FolderKanban, Users, X } from "lucide-react";
 
 const links = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/projects", label: "Projects", icon: FolderKanban },
-  { to: "/team", label: "Team", icon: Users },
+  { to: "/projects", label: "Teams", icon: FolderKanban },
+  { to: "/team", label: "People", icon: Users },
 ];
 
 // Left navigation. Fixed on desktop; slides in as an overlay on mobile driven by

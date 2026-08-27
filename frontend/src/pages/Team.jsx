@@ -15,12 +15,12 @@ const Team = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Team</h1>
+        <h1 className="text-2xl font-bold">People</h1>
         <button
           onClick={() => setShowInvite(true)}
           className="flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
-          <UserPlus className="size-4" /> Add member
+          <UserPlus className="size-4" /> Add person
         </button>
       </div>
 
@@ -40,7 +40,7 @@ const Team = () => {
                   : "bg-gray-100 text-gray-600 dark:bg-zinc-800 dark:text-zinc-400"
               }`}
             >
-              {m.role}
+              {m.role === "ADMIN" ? "Faculty" : "Student"}
             </span>
           </div>
         ))}

@@ -45,10 +45,10 @@ const CreateProjectDialog = ({ onClose }) => {
         onSubmit={handleSubmit}
         className="w-full max-w-md space-y-4 rounded-lg bg-white p-6 dark:bg-zinc-900"
       >
-        <h2 className="text-lg font-semibold">New project</h2>
+        <h2 className="text-lg font-semibold">New team</h2>
 
         <input
-          placeholder="Project name"
+          placeholder="Team name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required

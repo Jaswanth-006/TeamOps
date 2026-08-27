@@ -7,7 +7,7 @@ const StatsGrid = ({ workspace }) => {
   const done = tasks.filter((t) => t.status === "DONE").length;
 
   const stats = [
-    { label: "Projects", value: workspace.projects.length, icon: FolderKanban },
+    { label: "Teams", value: workspace.projects.length, icon: FolderKanban },
     { label: "Tasks", value: tasks.length, icon: ListTodo },
     { label: "Completed", value: done, icon: CheckCircle2 },
     { label: "Members", value: workspace.members.length, icon: Users },

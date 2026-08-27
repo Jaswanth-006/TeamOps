@@ -26,8 +26,8 @@ const Dashboard = () => {
       <div>
         <h1 className="text-2xl font-bold">{currentWorkspace.name}</h1>
         <p className="text-sm text-gray-500 dark:text-zinc-400">
-          {currentWorkspace.projects.length} projects ·{" "}
-          {currentWorkspace.members.length} members
+          {currentWorkspace.projects.length} teams ·{" "}
+          {currentWorkspace.members.length} people
         </p>
       </div>
 
