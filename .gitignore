@@ -60,3 +60,9 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Reference clones — kept locally for study, never committed
+/3-tier/
+/Team Flow/
+/project-management-main/
+/reference/
