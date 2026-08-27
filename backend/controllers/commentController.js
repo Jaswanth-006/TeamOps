@@ -1,7 +1,8 @@
 import prisma from "../configs/prisma.js";
+import { canManageProject } from "../utils/permissions.js";
 
-// Add a comment to a task. The author must be a member of the task's project.
-// Permission is derived through relations: task -> project -> members.
+// Add a comment to a task. The author must be part of the task's team — a project
+// member, its team lead, or the workspace admin (faculty) overseeing the class.
 export const addComment = async (req, res) => {
   try {
     const { userId } = await req.auth();
@@ -26,13 +27,13 @@ export const addComment = async (req, res) => {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    const isMember =
-      project.team_lead === userId ||
-      project.members.some((member) => member.userId === userId);
-    if (!isMember) {
+    const allowed =
+      project.members.some((member) => member.userId === userId) ||
+      (await canManageProject(project, userId));
+    if (!allowed) {
       return res
         .status(403)
-        .json({ message: "You are not a member of this project" });
+        .json({ message: "You are not part of this team" });
     }
 
     const comment = await prisma.comment.create({
