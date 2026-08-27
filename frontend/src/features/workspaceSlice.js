@@ -28,6 +28,13 @@ const workspaceSlice = createSlice({
         (w) => w.id === action.payload
       );
     },
+    addWorkspace: (state, action) => {
+      state.workspaces.push(action.payload);
+      state.currentWorkspace = action.payload;
+      if (action.payload?.id) {
+        localStorage.setItem("currentWorkspaceId", action.payload.id);
+      }
+    },
     addProject: (state, action) => {
       if (!state.currentWorkspace) return;
       state.currentWorkspace.projects.push(action.payload);
@@ -132,6 +139,7 @@ const workspaceSlice = createSlice({
 
 export const {
   setCurrentWorkspace,
+  addWorkspace,
   addProject,
   updateProject,
   addTask,
