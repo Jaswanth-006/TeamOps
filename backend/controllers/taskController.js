@@ -1,8 +1,10 @@
 import prisma from "../configs/prisma.js";
 import { sendMail } from "../configs/mailer.js";
+import { canManageProject } from "../utils/permissions.js";
 
-// Create a task in a project. Only the project's team lead may create tasks, and
-// the assignee must be a member of the project.
+// Create a task in a project. The project's team lead or the workspace admin
+// (faculty) may create tasks; the assignee must be a member of the project or
+// its team lead.
 export const createTask = async (req, res) => {
   try {
     const { userId } = await req.auth();
@@ -31,15 +33,18 @@ export const createTask = async (req, res) => {
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
-    if (project.team_lead !== userId) {
+    if (!(await canManageProject(project, userId))) {
       return res
         .status(403)
-        .json({ message: "You don't have admin privileges for this project" });
+        .json({ message: "You don't have permission to manage this team" });
     }
-    if (!project.members.some((member) => member.userId === assigneeId)) {
+    const assigneeIsOnTeam =
+      assigneeId === project.team_lead ||
+      project.members.some((member) => member.userId === assigneeId);
+    if (!assigneeIsOnTeam) {
       return res
         .status(403)
-        .json({ message: "Assignee is not a member of the project" });
+        .json({ message: "Assignee is not a member of the team" });
     }
 
     const task = await prisma.task.create({
@@ -79,8 +84,8 @@ export const createTask = async (req, res) => {
   }
 };
 
-// Update a task. Only the project's team lead may update it. Powers the
-// TODO -> IN_PROGRESS -> DONE status flow.
+// Update a task. The project's team lead or the workspace admin (faculty) may
+// update it. Powers the TODO -> IN_PROGRESS -> DONE status flow.
 export const updateTask = async (req, res) => {
   try {
     const task = await prisma.task.findUnique({ where: { id: req.params.id } });
@@ -96,10 +101,10 @@ export const updateTask = async (req, res) => {
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
-    if (project.team_lead !== userId) {
+    if (!(await canManageProject(project, userId))) {
       return res
         .status(403)
-        .json({ message: "You don't have admin privileges for this project" });
+        .json({ message: "You don't have permission to manage this team" });
     }
 
     // Only allow known fields to be updated, and coerce the date if present.
@@ -122,8 +127,8 @@ export const updateTask = async (req, res) => {
   }
 };
 
-// Delete one or more tasks in a single operation. Only the team lead of the
-// tasks' project may delete them.
+// Delete one or more tasks in a single operation. The team lead of the tasks'
+// project or the workspace admin (faculty) may delete them.
 export const deleteTask = async (req, res) => {
   try {
     const { userId } = await req.auth();
@@ -148,10 +153,10 @@ export const deleteTask = async (req, res) => {
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
-    if (project.team_lead !== userId) {
+    if (!(await canManageProject(project, userId))) {
       return res
         .status(403)
-        .json({ message: "You don't have admin privileges for this project" });
+        .json({ message: "You don't have permission to manage this team" });
     }
 
     await prisma.task.deleteMany({ where: { id: { in: tasksIds } } });
