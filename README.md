@@ -22,6 +22,9 @@ every team.
 
 ## Documentation
 
+**Start here**
+- [End-to-End Documentation](docs/END-TO-END.md) — the whole project in one place: app, architecture, request flow, deployment
+
 **Concepts & report**
 - [Project Report / PPT content](docs/project-report.md) — intro, problem, objectives, methodology, conclusion
 - [3-Tier Architecture, Explained](docs/3-tier-explained.md) — the big picture in plain words
