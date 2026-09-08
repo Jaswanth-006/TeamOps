@@ -1,13 +1,11 @@
 #!/bin/bash
 set -e
 
-# App tier boot script. Installs Node, pulls the backend, applies database
-# migrations, and starts the API. The database credentials are NOT baked in —
-# the app fetches them from Secrets Manager at runtime using its instance role.
-
-dnf update -y
-dnf install -y git nodejs npm
-npm install -g pm2
+# App tier boot script. Node, pm2, and git are pre-baked into the golden AMI
+# (see packer/app), so this only pulls the backend, installs its dependencies,
+# applies database migrations, and starts the API. The database credentials are
+# NOT baked in — the app fetches them from Secrets Manager at runtime using its
+# instance role.
 
 cd /home/ec2-user
 git clone https://github.com/Jaswanth-006/TeamOps.git app || true

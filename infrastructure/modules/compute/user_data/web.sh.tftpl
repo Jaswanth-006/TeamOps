@@ -1,11 +1,9 @@
 #!/bin/bash
 set -e
 
-# Web tier boot script. Installs nginx and Node, pulls the frontend, builds it,
-# and configures nginx to serve the build and proxy /api to the internal ALB.
-
-dnf update -y
-dnf install -y nginx git nodejs npm
+# Web tier boot script. nginx, Node, and git are pre-baked into the golden AMI
+# (see packer/web), so this only pulls the frontend, builds it, and configures
+# nginx to serve the build and proxy /api to the internal ALB.
 
 # Clone the application repository.
 cd /home/ec2-user

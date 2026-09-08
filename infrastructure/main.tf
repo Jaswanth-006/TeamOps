@@ -73,8 +73,8 @@ module "compute" {
   web_target_group_arn = module.alb.web_target_group_arn
   app_target_group_arn = module.alb.app_target_group_arn
 
-  web_ami_id        = data.aws_ami.amazon_linux.id
-  app_ami_id        = data.aws_ami.amazon_linux.id
+  web_ami_id        = data.aws_ami.web.id
+  app_ami_id        = data.aws_ami.app.id
   web_instance_type = var.web_instance_type
   app_instance_type = var.app_instance_type
   key_name          = var.key_name
