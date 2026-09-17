@@ -69,7 +69,21 @@ export const getUserWorkspaces = async (req, res) => {
       include: workspaceInclude,
     });
 
-    res.json({ workspaces });
+    // Scope visibility by role. Faculty (workspace ADMIN) see every team in the
+    // class. A student sees only the teams they lead or belong to — not other
+    // teams' work.
+    const scoped = workspaces.map((ws) => {
+      const myRole = ws.members.find((m) => m.userId === userId)?.role;
+      if (myRole === "ADMIN") return ws;
+      const myProjects = ws.projects.filter(
+        (p) =>
+          p.team_lead === userId ||
+          p.members.some((m) => m.userId === userId)
+      );
+      return { ...ws, projects: myProjects };
+    });
+
+    res.json({ workspaces: scoped });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
