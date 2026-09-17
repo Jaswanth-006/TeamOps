@@ -7,6 +7,7 @@ const workspaceInclude = {
   members: { include: { user: true } },
   projects: {
     include: {
+      owner: true,
       members: { include: { user: true } },
       tasks: {
         include: {
@@ -65,21 +66,7 @@ export const getUserWorkspaces = async (req, res) => {
       where: {
         members: { some: { userId } },
       },
-      include: {
-        owner: true,
-        members: { include: { user: true } },
-        projects: {
-          include: {
-            members: { include: { user: true } },
-            tasks: {
-              include: {
-                assignee: true,
-                comments: { include: { user: true } },
-              },
-            },
-          },
-        },
-      },
+      include: workspaceInclude,
     });
 
     res.json({ workspaces });
