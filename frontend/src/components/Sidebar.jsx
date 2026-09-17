@@ -10,11 +10,17 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const isFaculty = useIsFaculty();
   const close = () => setIsSidebarOpen(false);
 
-  // Class Overview is a faculty-only orchestration view.
+  // Faculty orchestrate across classes (Class Overview + a flat Teams list).
+  // Students navigate their teams through the expandable Teams tree below, so the
+  // flat Teams link is faculty-only to avoid showing "Teams" twice.
   const links = [
     { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-    ...(isFaculty ? [{ to: "/class", label: "Class Overview", icon: LayoutGrid }] : []),
-    { to: "/projects", label: isFaculty ? "Teams" : "My Teams", icon: FolderKanban },
+    ...(isFaculty
+      ? [
+          { to: "/class", label: "Class Overview", icon: LayoutGrid },
+          { to: "/projects", label: "Teams", icon: FolderKanban },
+        ]
+      : []),
     { to: "/team", label: "People", icon: Users },
   ];
 
@@ -46,8 +52,14 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         ))}
       </nav>
 
-      <ProjectsSidebar onNavigate={close} />
-      <MyTasksSidebar onNavigate={close} />
+      {/* The teams tree and personal task list are the student's primary
+          navigation; faculty use Class Overview and the flat Teams list. */}
+      {!isFaculty && (
+        <>
+          <ProjectsSidebar onNavigate={close} />
+          <MyTasksSidebar onNavigate={close} />
+        </>
+      )}
     </>
   );
 

@@ -29,6 +29,24 @@ const teams = [
   { name: "ML Model Serving API", description: "Serving a trained model behind an autoscaling API.", priority: "HIGH", status: "ACTIVE" },
 ];
 
+// Two classes taught by the same faculty, so the faculty dashboard aggregates
+// across multiple classes. teamIdx selects which teams (by index above) belong
+// to each class.
+const classes = [
+  {
+    name: "Introduction to Cloud Computing — Sem 5",
+    slug: "cloud-computing-sem5",
+    description: "Class workspace for the Introduction to Cloud Computing course.",
+    teamIdx: [0, 1, 2, 3],
+  },
+  {
+    name: "Distributed Systems — Sem 6",
+    slug: "distributed-systems-sem6",
+    description: "Class workspace for the Distributed Systems course.",
+    teamIdx: [4, 5],
+  },
+];
+
 const taskTitles = [
   "Design the VPC and subnets", "Set up the CI/CD pipeline", "Implement user authentication",
   "Write the REST API endpoints", "Design the database schema", "Containerize the services",
@@ -80,94 +98,102 @@ async function main() {
   const studentPass = await hashPassword(STUDENT_PASSWORD);
 
   const faculty = await prisma.user.create({
-    data: { name: FACULTY.name, email: FACULTY.email, password: facultyPass },
+    data: { name: FACULTY.name, email: FACULTY.email, role: "FACULTY", password: facultyPass },
   });
 
   const students = [];
   for (const name of studentNames) {
     const email = name.toLowerCase().replace(/[^a-z]+/g, ".") + "@student.edu";
     students.push(
-      await prisma.user.create({ data: { name, email, password: studentPass } })
+      await prisma.user.create({
+        data: { name, email, role: "STUDENT", password: studentPass },
+      })
     );
-  }
-
-  const workspace = await prisma.workspace.create({
-    data: {
-      name: "Introduction to Cloud Computing — Sem 5",
-      slug: "cloud-computing-sem5",
-      description: "Class workspace for the Introduction to Cloud Computing course.",
-      ownerId: faculty.id,
-    },
-  });
-
-  await prisma.workspaceMember.create({
-    data: { userId: faculty.id, workspaceId: workspace.id, role: "ADMIN" },
-  });
-  for (const s of students) {
-    await prisma.workspaceMember.create({
-      data: { userId: s.id, workspaceId: workspace.id, role: "MEMBER" },
-    });
   }
 
   let titleIdx = 0;
   let commentIdx = 0;
 
-  for (let t = 0; t < teams.length; t++) {
-    const teamMembers = [students[t * 3], students[t * 3 + 1], students[t * 3 + 2]];
-    const lead = teamMembers[0];
-
-    const project = await prisma.project.create({
+  for (const cls of classes) {
+    const workspace = await prisma.workspace.create({
       data: {
-        name: teams[t].name,
-        description: teams[t].description,
-        priority: teams[t].priority,
-        status: teams[t].status,
-        progress: 0,
-        team_lead: lead.id,
-        workspaceId: workspace.id,
-        start_date: daysFromNow(-14),
-        end_date: daysFromNow(30),
+        name: cls.name,
+        slug: cls.slug,
+        description: cls.description,
+        ownerId: faculty.id,
       },
     });
 
-    await prisma.projectMember.createMany({
-      data: teamMembers.map((u) => ({ userId: u.id, projectId: project.id })),
+    // Faculty is the class admin; the students on this class's teams are members.
+    await prisma.workspaceMember.create({
+      data: { userId: faculty.id, workspaceId: workspace.id, role: "ADMIN" },
     });
+    const classStudentIds = new Set(
+      cls.teamIdx.flatMap((t) => [t * 3, t * 3 + 1, t * 3 + 2])
+    );
+    for (const idx of classStudentIds) {
+      await prisma.workspaceMember.create({
+        data: { userId: students[idx].id, workspaceId: workspace.id, role: "MEMBER" },
+      });
+    }
 
-    const nTasks = 4;
-    let done = 0;
-    for (let k = 0; k < nTasks; k++) {
-      const status = pick(statuses, t + k);
-      if (status === "DONE") done++;
-      const assignee = teamMembers[k % teamMembers.length];
+    for (const t of cls.teamIdx) {
+      const teamMembers = [students[t * 3], students[t * 3 + 1], students[t * 3 + 2]];
+      const lead = teamMembers[0];
 
-      const task = await prisma.task.create({
+      const project = await prisma.project.create({
         data: {
-          projectId: project.id,
-          title: pick(taskTitles, titleIdx++),
-          description: pick(taskDescriptions, k),
-          status,
-          type: pick(types, k),
-          priority: pick(priorities, t + k),
-          assigneeId: assignee.id,
-          due_date: daysFromNow(3 + k * 5),
+          name: teams[t].name,
+          description: teams[t].description,
+          priority: teams[t].priority,
+          status: teams[t].status,
+          progress: 0,
+          team_lead: lead.id,
+          workspaceId: workspace.id,
+          start_date: daysFromNow(-14),
+          end_date: daysFromNow(30),
         },
       });
 
-      if (k % 2 === 0) {
-        await prisma.comment.create({
-          data: { taskId: task.id, userId: faculty.id, content: pick(facultyComments, commentIdx++) },
-        });
-        await prisma.comment.create({
-          data: { taskId: task.id, userId: assignee.id, content: pick(studentComments, commentIdx++) },
-        });
-      }
-    }
+      await prisma.projectMember.createMany({
+        data: teamMembers.map((u) => ({ userId: u.id, projectId: project.id })),
+      });
 
-    await prisma.project.update({
-      where: { id: project.id },
-      data: { progress: Math.round((done / nTasks) * 100) },
-    });
+      const nTasks = 4;
+      let done = 0;
+      for (let k = 0; k < nTasks; k++) {
+        const status = pick(statuses, t + k);
+        if (status === "DONE") done++;
+        const assignee = teamMembers[k % teamMembers.length];
+
+        const task = await prisma.task.create({
+          data: {
+            projectId: project.id,
+            title: pick(taskTitles, titleIdx++),
+            description: pick(taskDescriptions, k),
+            status,
+            type: pick(types, k),
+            priority: pick(priorities, t + k),
+            assigneeId: assignee.id,
+            due_date: daysFromNow(3 + k * 5),
+          },
+        });
+
+        if (k % 2 === 0) {
+          await prisma.comment.create({
+            data: { taskId: task.id, userId: faculty.id, content: pick(facultyComments, commentIdx++) },
+          });
+          await prisma.comment.create({
+            data: { taskId: task.id, userId: assignee.id, content: pick(studentComments, commentIdx++) },
+          });
+        }
+      }
+
+      await prisma.project.update({
+        where: { id: project.id },
+        data: { progress: Math.round((done / nTasks) * 100) },
+      });
+    }
   }
 
   const counts = {

@@ -5,16 +5,26 @@ import StatsGrid from "../components/StatsGrid";
 import TasksSummary from "../components/TasksSummary";
 import RecentActivity from "../components/RecentActivity";
 import ProjectAnalytics from "../components/ProjectAnalytics";
+import FacultyDashboard from "../components/FacultyDashboard";
 import CreateClassDialog from "../components/CreateClassDialog";
+import { useIsFaculty } from "../hooks/useRole";
 
-// Class overview. Everything is derived from the current class already loaded in
-// the store — no extra API calls.
+// Dashboard. Faculty get analytics rolled up across all the classes they run;
+// students get the overview of their single current class. Everything is derived
+// from what is already loaded in the store — no extra API calls.
 const Dashboard = () => {
-  const { currentWorkspace, loading } = useSelector((state) => state.workspace);
+  const { workspaces, currentWorkspace, loading } = useSelector(
+    (state) => state.workspace
+  );
+  const isFaculty = useIsFaculty();
   const [showCreate, setShowCreate] = useState(false);
 
   if (loading) {
     return <div className="text-gray-500 dark:text-zinc-400">Loading...</div>;
+  }
+
+  if (isFaculty && workspaces.length > 0) {
+    return <FacultyDashboard workspaces={workspaces} />;
   }
 
   if (!currentWorkspace) {

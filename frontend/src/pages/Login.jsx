@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { GraduationCap, Users } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 
-// Local login form. Calls the auth context, which stores the token and loads
-// the user, then redirects into the app. Replaces the external sign-in widget.
+// Local login form. Faculty and students sign in through separate portals: the
+// selected role is sent to the server, which rejects a mismatched account.
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const [role, setRole] = useState("FACULTY");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -17,7 +19,7 @@ const Login = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await login(email, password);
+      await login(email, password, role);
       navigate("/");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Login failed");
@@ -26,13 +28,34 @@ const Login = () => {
     }
   };
 
+  const roleTab = (value, label, Icon) => (
+    <button
+      type="button"
+      onClick={() => setRole(value)}
+      className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+        role === value
+          ? "bg-blue-600 text-white shadow-sm"
+          : "text-gray-600 hover:bg-gray-100"
+      }`}
+    >
+      <Icon className="size-4" /> {label}
+    </button>
+  );
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-lg border border-gray-200 bg-white p-8 shadow-sm"
       >
-        <h1 className="text-2xl font-bold text-gray-900">Sign in to TeamOps</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          {role === "FACULTY" ? "Faculty sign in" : "Student sign in"}
+        </h1>
+
+        <div className="flex gap-1 rounded-lg bg-gray-100 p-1">
+          {roleTab("FACULTY", "Faculty", GraduationCap)}
+          {roleTab("STUDENT", "Student", Users)}
+        </div>
 
         <input
           type="email"

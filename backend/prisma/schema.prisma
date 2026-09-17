@@ -11,6 +11,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  FACULTY
+  STUDENT
+}
+
 enum WorkspaceRole {
   ADMIN
   MEMBER
@@ -49,6 +54,7 @@ model User {
   name      String
   email     String   @unique
   password  String
+  role      UserRole @default(STUDENT)
   image     String   @default("")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
