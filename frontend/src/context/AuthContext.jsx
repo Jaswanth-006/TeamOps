@@ -24,15 +24,15 @@ export const AuthProvider = ({ children }) => {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
+  const login = async (email, password, role) => {
+    const { data } = await api.post("/auth/login", { email, password, role });
     localStorage.setItem("token", data.token);
     setUser(data.user);
     return data.user;
   };
 
-  const register = async (name, email, password) => {
-    const { data } = await api.post("/auth/register", { name, email, password });
+  const register = async (name, email, password, role) => {
+    const { data } = await api.post("/auth/register", { name, email, password, role });
     localStorage.setItem("token", data.token);
     setUser(data.user);
     return data.user;

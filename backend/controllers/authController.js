@@ -7,13 +7,22 @@ import { requireFields } from "../utils/validate.js";
 // Shape the user object returned to clients so the password hash never leaves
 // the server.
 function publicUser(user) {
-  return { id: user.id, name: user.name, email: user.email, image: user.image };
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    image: user.image,
+  };
 }
+
+const ROLE_LABEL = { FACULTY: "faculty", STUDENT: "student" };
 
 // Register a new account.
 export const register = asyncHandler(async (req, res) => {
   requireFields(req.body, ["name", "email", "password"]);
   const { name, email, password } = req.body;
+  const role = req.body.role === "FACULTY" ? "FACULTY" : "STUDENT";
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -21,7 +30,7 @@ export const register = asyncHandler(async (req, res) => {
   }
 
   const user = await prisma.user.create({
-    data: { name, email, password: await hashPassword(password) },
+    data: { name, email, role, password: await hashPassword(password) },
   });
 
   const token = signToken({ userId: user.id });
@@ -40,11 +49,19 @@ export const getMe = asyncHandler(async (req, res) => {
 // Log in with email and password, returning a signed token.
 export const login = asyncHandler(async (req, res) => {
   requireFields(req.body, ["email", "password"]);
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user || !(await comparePassword(password, user.password))) {
     return res.status(401).json({ message: "Invalid email or password" });
+  }
+
+  // Keep the two portals separate: a faculty account can only sign in through the
+  // faculty login, and a student account only through the student login.
+  if (role && role !== user.role) {
+    return res.status(403).json({
+      message: `This is a ${ROLE_LABEL[user.role]} account. Please use the ${ROLE_LABEL[user.role]} login.`,
+    });
   }
 
   const token = signToken({ userId: user.id });
