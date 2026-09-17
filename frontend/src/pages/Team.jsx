@@ -2,11 +2,13 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { UserPlus } from "lucide-react";
 import InviteMemberDialog from "../components/InviteMemberDialog";
+import { useIsFaculty } from "../hooks/useRole";
 
-// Lists the current workspace's members and their roles, with an add-member action.
+// Lists the class members and their roles. Only faculty can add people.
 const Team = () => {
   const { currentWorkspace } = useSelector((state) => state.workspace);
   const [showInvite, setShowInvite] = useState(false);
+  const isFaculty = useIsFaculty();
 
   if (!currentWorkspace) {
     return <div className="text-gray-500 dark:text-zinc-400">No workspace selected.</div>;
@@ -16,12 +18,14 @@ const Team = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">People</h1>
-        <button
-          onClick={() => setShowInvite(true)}
-          className="flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          <UserPlus className="size-4" /> Add person
-        </button>
+        {isFaculty && (
+          <button
+            onClick={() => setShowInvite(true)}
+            className="flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            <UserPlus className="size-4" /> Add person
+          </button>
+        )}
       </div>
 
       {showInvite && <InviteMemberDialog onClose={() => setShowInvite(false)} />}

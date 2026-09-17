@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import api from "../configs/api";
 import { updateTask, deleteTask } from "../features/workspaceSlice";
 import TaskComments from "../components/TaskComments";
+import { useCanManageProject } from "../hooks/useRole";
 
 const STATUSES = ["TODO", "IN_PROGRESS", "DONE"];
 
@@ -22,6 +23,7 @@ const TaskDetails = () => {
 
   const project = currentWorkspace?.projects.find((p) => p.id === projectId);
   const task = project?.tasks.find((t) => t.id === taskId);
+  const canManage = useCanManageProject(project);
 
   if (!project || !task) {
     return <div className="text-red-500">Task not found.</div>;
@@ -58,12 +60,14 @@ const TaskDetails = () => {
       <div className="rounded-lg border border-gray-200 p-5 dark:border-zinc-800">
         <div className="flex items-start justify-between gap-2">
           <h1 className="text-lg font-semibold">{task.title}</h1>
-          <button
-            onClick={handleDelete}
-            className="flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 dark:text-zinc-400"
-          >
-            <Trash2 className="size-4" /> Delete
-          </button>
+          {canManage && (
+            <button
+              onClick={handleDelete}
+              className="flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 dark:text-zinc-400"
+            >
+              <Trash2 className="size-4" /> Delete
+            </button>
+          )}
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
           <span className="rounded bg-zinc-200 px-2 py-0.5 text-xs dark:bg-zinc-700">
@@ -83,23 +87,25 @@ const TaskDetails = () => {
           </p>
         )}
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="text-sm text-gray-500 dark:text-zinc-400">Status:</span>
-          {STATUSES.map((s) => (
-            <button
-              key={s}
-              onClick={() => changeStatus(s)}
-              disabled={updating}
-              className={`rounded px-2 py-1 text-xs ${
-                s === task.status
-                  ? "bg-blue-600 text-white"
-                  : "border border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
-              }`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
+        {canManage && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="text-sm text-gray-500 dark:text-zinc-400">Status:</span>
+            {STATUSES.map((s) => (
+              <button
+                key={s}
+                onClick={() => changeStatus(s)}
+                disabled={updating}
+                className={`rounded px-2 py-1 text-xs ${
+                  s === task.status
+                    ? "bg-blue-600 text-white"
+                    : "border border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
 
         <hr className="my-4 border-gray-200 dark:border-zinc-700" />
 

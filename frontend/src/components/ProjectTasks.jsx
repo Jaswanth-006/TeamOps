@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import CreateTaskDialog from "./CreateTaskDialog";
+import { useCanManageProject } from "../hooks/useRole";
 
 const COLUMNS = [
   { key: "TODO", label: "To Do" },
@@ -9,22 +10,26 @@ const COLUMNS = [
   { key: "DONE", label: "Done" },
 ];
 
-// Kanban-style board grouping a project's tasks by status, with task creation.
+// Kanban-style board grouping a team's tasks by status. Only faculty or the team
+// lead can add tasks.
 const ProjectTasks = ({ project }) => {
   const navigate = useNavigate();
   const tasks = project.tasks || [];
   const [showCreate, setShowCreate] = useState(false);
+  const canManage = useCanManageProject(project);
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          <Plus className="size-4" /> New task
-        </button>
-      </div>
+      {canManage && (
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-1 rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            <Plus className="size-4" /> New task
+          </button>
+        </div>
+      )}
 
       {showCreate && (
         <CreateTaskDialog project={project} onClose={() => setShowCreate(false)} />

@@ -7,6 +7,7 @@ import ProjectOverview from "../components/ProjectOverview";
 import ProjectSettings from "../components/ProjectSettings";
 import ProjectCalendar from "../components/ProjectCalendar";
 import AddTeamMemberDialog from "../components/AddTeamMemberDialog";
+import { useCanManageProject } from "../hooks/useRole";
 
 const TABS = ["Tasks", "Overview", "Calendar"];
 
@@ -19,6 +20,7 @@ const ProjectDetails = () => {
   const [showAddMember, setShowAddMember] = useState(false);
 
   const project = currentWorkspace?.projects.find((p) => p.id === projectId);
+  const canManage = useCanManageProject(project);
 
   if (!project) {
     return <div className="text-gray-500 dark:text-zinc-400">Team not found.</div>;
@@ -38,12 +40,14 @@ const ProjectDetails = () => {
             <span>{project.tasks?.length || 0} tasks</span>
           </div>
         </div>
-        <button
-          onClick={() => setShowAddMember(true)}
-          className="flex shrink-0 items-center gap-1 rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          <UserPlus className="size-4" /> Add member
-        </button>
+        {canManage && (
+          <button
+            onClick={() => setShowAddMember(true)}
+            className="flex shrink-0 items-center gap-1 rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            <UserPlus className="size-4" /> Add member
+          </button>
+        )}
       </div>
 
       {showAddMember && (
@@ -74,7 +78,7 @@ const ProjectDetails = () => {
         {tab === "Overview" && (
           <div className="space-y-6">
             <ProjectOverview project={project} />
-            <ProjectSettings project={project} />
+            {canManage && <ProjectSettings project={project} />}
           </div>
         )}
         {tab === "Calendar" && <ProjectCalendar project={project} />}

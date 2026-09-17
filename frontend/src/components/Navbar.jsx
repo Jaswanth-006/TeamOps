@@ -2,14 +2,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { Menu, Sun, Moon, LogOut } from "lucide-react";
 import { toggleTheme } from "../features/themeSlice";
 import { useAuth } from "../context/AuthContext";
+import { useIsFaculty } from "../hooks/useRole";
 import WorkspaceDropdown from "./WorkspaceDropdown";
 
-// Top bar: mobile menu button, a workspace switcher placeholder (wired to real
-// data in the workspace change), theme toggle, current user, and logout.
+// Top bar: mobile menu button, class switcher, theme toggle, a role badge, the
+// current user, and logout.
 const Navbar = ({ setIsSidebarOpen }) => {
   const dispatch = useDispatch();
   const { theme } = useSelector((state) => state.theme);
   const { user, logout } = useAuth();
+  const isFaculty = useIsFaculty();
 
   return (
     <header className="flex h-14 items-center justify-between border-b border-gray-200 px-4 dark:border-zinc-800 sm:px-6">
@@ -34,9 +36,20 @@ const Navbar = ({ setIsSidebarOpen }) => {
         </button>
 
         {user && (
-          <span className="hidden text-sm text-gray-700 dark:text-zinc-300 sm:inline">
-            {user.name}
-          </span>
+          <div className="hidden items-center gap-2 sm:flex">
+            <span className="text-sm text-gray-700 dark:text-zinc-300">
+              {user.name}
+            </span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                isFaculty
+                  ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                  : "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+              }`}
+            >
+              {isFaculty ? "Faculty" : "Student"}
+            </span>
+          </div>
         )}
 
         <button
