@@ -3,24 +3,34 @@ import { useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { UserPlus } from "lucide-react";
 import ProjectTasks from "../components/ProjectTasks";
+import ProjectAnalytics from "../components/ProjectAnalytics";
 import ProjectOverview from "../components/ProjectOverview";
 import ProjectSettings from "../components/ProjectSettings";
 import ProjectCalendar from "../components/ProjectCalendar";
 import AddTeamMemberDialog from "../components/AddTeamMemberDialog";
 import { useCanManageProject } from "../hooks/useRole";
 
-const TABS = ["Tasks", "Overview", "Calendar"];
+// Map the sidebar's ?tab= values to tab labels.
+const TAB_FROM_PARAM = {
+  tasks: "Tasks",
+  analytics: "Analytics",
+  calendar: "Calendar",
+  overview: "Overview",
+  settings: "Settings",
+};
 
 // Detail view for a single team, selected via the projectId query param.
 const ProjectDetails = () => {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get("projectId");
   const { currentWorkspace } = useSelector((state) => state.workspace);
-  const [tab, setTab] = useState("Tasks");
   const [showAddMember, setShowAddMember] = useState(false);
 
   const project = currentWorkspace?.projects.find((p) => p.id === projectId);
   const canManage = useCanManageProject(project);
+
+  const tabs = ["Tasks", "Analytics", "Calendar", "Overview", ...(canManage ? ["Settings"] : [])];
+  const [tab, setTab] = useState(TAB_FROM_PARAM[searchParams.get("tab")] || "Tasks");
 
   if (!project) {
     return <div className="text-gray-500 dark:text-zinc-400">Team not found.</div>;
@@ -58,7 +68,7 @@ const ProjectDetails = () => {
       )}
 
       <div className="flex gap-1 border-b border-gray-200 dark:border-zinc-800">
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -75,13 +85,10 @@ const ProjectDetails = () => {
 
       <div>
         {tab === "Tasks" && <ProjectTasks project={project} />}
-        {tab === "Overview" && (
-          <div className="space-y-6">
-            <ProjectOverview project={project} />
-            {canManage && <ProjectSettings project={project} />}
-          </div>
-        )}
+        {tab === "Analytics" && <ProjectAnalytics workspace={{ projects: [project] }} />}
         {tab === "Calendar" && <ProjectCalendar project={project} />}
+        {tab === "Overview" && <ProjectOverview project={project} />}
+        {tab === "Settings" && canManage && <ProjectSettings project={project} />}
       </div>
     </div>
   );
