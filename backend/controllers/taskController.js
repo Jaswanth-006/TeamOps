@@ -84,8 +84,8 @@ export const createTask = async (req, res) => {
   }
 };
 
-// Update a task. The project's team lead or the workspace admin (faculty) may
-// update it. Powers the TODO -> IN_PROGRESS -> DONE status flow.
+// Update a task. Faculty and the team lead may edit any field; the person the
+// task is assigned to may update only its status (to move their own work along).
 export const updateTask = async (req, res) => {
   try {
     const task = await prisma.task.findUnique({ where: { id: req.params.id } });
@@ -101,18 +101,27 @@ export const updateTask = async (req, res) => {
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
-    if (!(await canManageProject(project, userId))) {
+
+    const isManager = await canManageProject(project, userId);
+    const isAssignee = task.assigneeId === userId;
+    if (!isManager && !isAssignee) {
       return res
         .status(403)
-        .json({ message: "You don't have permission to manage this team" });
+        .json({ message: "You don't have permission to update this task" });
     }
 
-    // Only allow known fields to be updated, and coerce the date if present.
-    const { title, description, status, type, priority, assigneeId, due_date } =
-      req.body;
-    const data = { title, description, status, type, priority, assigneeId };
-    if (due_date !== undefined) {
-      data.due_date = new Date(due_date);
+    let data;
+    if (isManager) {
+      // Managers may edit all known fields; coerce the date if present.
+      const { title, description, status, type, priority, assigneeId, due_date } =
+        req.body;
+      data = { title, description, status, type, priority, assigneeId };
+      if (due_date !== undefined) {
+        data.due_date = new Date(due_date);
+      }
+    } else {
+      // A plain assignee may change only the status of their own task.
+      data = { status: req.body.status };
     }
 
     const updatedTask = await prisma.task.update({
