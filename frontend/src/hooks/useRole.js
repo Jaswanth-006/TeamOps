@@ -1,4 +1,5 @@
 import { useAuth } from "../context/AuthContext";
+import { useSelector } from "react-redux";
 
 // Is the current user a faculty account? This is the account-level role set at
 // sign-up, so it holds even before a class is loaded.
@@ -12,5 +13,11 @@ export function useIsFaculty() {
 export function useCanManageProject(project) {
   const { user } = useAuth();
   const isFaculty = useIsFaculty();
-  return isFaculty || project?.team_lead === user?.id;
+  const { currentWorkspace } = useSelector((state) => state.workspace);
+  
+  const isWorkspaceAdmin = currentWorkspace?.members?.some(
+    (m) => m.userId === user?.id && m.role === "ADMIN"
+  );
+
+  return isFaculty || isWorkspaceAdmin || project?.team_lead === user?.id;
 }
