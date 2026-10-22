@@ -9,8 +9,8 @@ instance.
 
 | Image | Baked runtime | Still done at boot (in user data) |
 |-------|---------------|-----------------------------------|
-| `teamops-web` | nginx, Node 22, git | clone code, `npm run build`, write nginx config, start nginx |
-| `teamops-app` | Node 22, pm2, git | clone code, `npm install`, `prisma migrate deploy`, `pm2 start` |
+| `teamops-web` | nginx, Node.js 22, git | clone code, `npm run build`, write nginx config, start nginx |
+| `teamops-app` | Node.js 22, pm2, git | clone code, `npm ci`, `prisma migrate deploy`, `pm2 start` |
 
 The *runtime* is baked (it rarely changes); the *application code* is still pulled at boot (it
 changes on every deploy).
@@ -27,8 +27,9 @@ packer/
 
 ```bash
 # Requires: packer installed, AWS credentials configured.
-cd packer/web && packer init . && packer build .
-cd ../app     && packer init . && packer build .
+# Replace YOUR_PUBLIC_IP/32 with your current public IP CIDR (the value used by Terraform).
+cd packer/web && packer init . && packer build -var "ssh_allowed_cidr=YOUR_PUBLIC_IP/32" .
+cd ../app     && packer init . && packer build -var "ssh_allowed_cidr=YOUR_PUBLIC_IP/32" .
 ```
 
 Each produces an AMI in your account named `teamops-web-*` / `teamops-app-*`.
