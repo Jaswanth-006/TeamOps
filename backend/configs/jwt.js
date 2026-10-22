@@ -1,9 +1,11 @@
 import jwt from "jsonwebtoken";
-
-// Token helpers. The secret signs every token, so anyone holding it can forge a
-// token for any user — it must come from the environment and never be hardcoded.
+import "./runtimeConfig.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is not set");
+}
+
 const JWT_EXPIRES_IN = "7d";
 
 export function signToken(payload) {
