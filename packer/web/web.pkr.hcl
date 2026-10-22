@@ -23,12 +23,18 @@ variable "region" {
   default = "ap-south-1"
 }
 
+variable "ssh_allowed_cidr" {
+  type        = string
+  description = "Public IP CIDR allowed to SSH to the temporary Packer build instance"
+}
+
 source "amazon-ebs" "web" {
   region          = var.region
   ami_name        = "teamops-web-{{timestamp}}"
-  ami_description = "TeamOps web tier — nginx + Node 22 on Amazon Linux 2023"
+  ami_description = "TeamOps web tier - nginx + Node.js 22 on Amazon Linux 2023"
   instance_type   = "t3.micro"
   ssh_username    = "ec2-user"
+  temporary_security_group_source_cidrs = [var.ssh_allowed_cidr]
 
   source_ami_filter {
     filters = {
