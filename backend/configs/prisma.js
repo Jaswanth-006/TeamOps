@@ -6,8 +6,8 @@ import { getDatabaseUrl } from "./databaseUrl.js";
 // quickly exhaust the database connection limit. The global guard keeps a single
 // instance across hot-reloads in development.
 //
-// The connection string comes from getDatabaseUrl(), the single seam that will
-// later source credentials from AWS Secrets Manager.
+// The connection string is loaded from local environment variables or AWS
+// Secrets Manager by the runtime configuration module.
 const prisma =
   global.prisma ||
   new PrismaClient({
